@@ -62,23 +62,23 @@ def getData():
             if med['organisation'] == 'ESP':
                 medd = med['disciplines'][0]
                 competition = med['disciplines'][0]['name']
-                logging.info(f"Comp: {competition}")
+                logging.debug(f"Comp: {competition}")
                 for aMed in medd['medalWinners']:
                     aMed = medd['medalWinners'][0]
-                    logging.info(f"Med: {aMed}")
+                    logging.debug(f"Med: {aMed}")
                     medD=(competition,
                           aMed['eventDescription'], 
                           aMed['medalType'], 
                           aMed['competitorDisplayName'])
 
-                    logging.info(f"Discipline: {medD}")
+                    logging.debug(f"Discipline: {medD}")
                     medalsD.append(medD)
                     break
             
     except:
         print(f"No medals yet")
 
-    logging.info(f"Medals: {medalsD}")
+    logging.debug(f"Medals: {medalsD}")
     return medalsD, data
 
 def printResults(msg, mode):
@@ -126,14 +126,14 @@ def main():
         elif medal[2] == 'ME_BRONZE':
             count[2] = count[2] + 1
 
-        print(f"Disc: {medal}")
+        logging.debug(f"Disc: {medal}")
         if (medal not in data):
             printResults(f"Nueva medalla: {medalsIcons[medal[2]]} "
                          f"{medal[3]} - {medal[0]} ({medal[1]})", mode)
             data.append(medal)
             newData = True
         else:
-            print("No news")
+            logging.debug("No news")
 
     if newData:
         printResults(f"Total medallas:"
