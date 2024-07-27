@@ -7,7 +7,7 @@ import requests
 import sys
 
 from bs4 import BeautifulSoup
-from configMod import *
+from socialModules.configMod import *
 
 
 # https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm
@@ -29,6 +29,7 @@ from configMod import *
 medals = ['🥇', '🥈', '🥉']
 
 url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm'
+url = 'https://olympics.com/en/paris-2024/medals'
 
 def nameFile(): 
     return os.path.expanduser('~/.mySocial/data/spain.json')
@@ -40,10 +41,26 @@ def getData():
     except:
         data = []
 
-    result = requests.get(url)
-    soup = BeautifulSoup(result.content, "lxml")
+    req = urllib.request.Request(url, data=None, 
+                                 headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
+    result = urllib.request.urlopen(req)
+    res = result.read()
+    logging.debug(f"Result: {res}")
+    soup = BeautifulSoup(res, "lxml")
+    logging.info(f"Soup: {soup}")
 
-    return soup.select('td'), data
+    #p2024-main-content > div.emotion-srm-uzcajx > div.emotion-srm-b12ho6 > div:nth-child(2) > div > div:nth-child(2) > div > div > div > div
+    selection = soup.find_all(attrs={'data-testid': "noc-row"})
+    print(f"Sel: {selection}")
+    print(f"Len Sel: {len(selection)}")
+
+    for row in selection:
+        name = row.find(attrs={'class':"elhe7kv5 emotion-srm-uu3d5n"})
+        print(f"Name: {name.text}")
+        medals = row.find_all(attrs={'class':'e1oix8v91 emotion-srm-81g9w1'})
+        print(f"Medals: {medals[0].text} {medals[1].text} {medals[2].text}")
+
+    return selection, data
 
 def printResults(msg, mode):
     if mode == 'test':
