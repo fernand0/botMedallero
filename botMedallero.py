@@ -11,27 +11,24 @@ from bs4 import BeautifulSoup
 from socialModules.configMod import *
 
 
-# https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm
-# https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-italy.htm
+# Tokyo
+#       https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm
+#       https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-italy.htm
 
-# text = soup.select('a[title*="Athlete Profile"]')
-# print(text)
-# text = soup.select('a[title*="Results"]')
-# print(text)
-
-
-
-# files = ['/tmp/noc-medalist-by-sport-spain.htm',
-#         '/tmp/noc-medalist-by-sport-italy.htm',
-#         '/tmp/noc-medalist-by-sport-germany.htm',
-#         '/tmp/noc-medalist-by-sport-france.htm',
-#         ]
+#       files = ['/tmp/noc-medalist-by-sport-spain.htm',
+#               '/tmp/noc-medalist-by-sport-italy.htm',
+#               '/tmp/noc-medalist-by-sport-germany.htm',
+#               '/tmp/noc-medalist-by-sport-france.htm',
+#               ]
 
 medalsIcons = {'ME_GOLD':'🥇', 'ME_SILVER':'🥈', 'ME_BRONZE':'🥉'}
+
+# Paris 2024
 
 url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm'
 url = 'https://olympics.com/en/paris-2024/medals'
 urlCountry = 'https://olympics.com/en/paris-2024/profile/spain'
+url = 'https://olympics.com/en/paris-2024/medals/china'
 url = 'https://olympics.com/en/paris-2024/medals/spain'
 
 
@@ -57,11 +54,7 @@ def getData():
         logging.debug(f"Soup: {soup}")
 
         jsonD = soup.find_all(attrs={'type':'application/json'})
-        # print(f'Json: {jsonD[0].contents[0]}')
         json_object = json.loads(jsonD[0].contents[0])
-        # import pprint
-        # pprint.pprint(f'Json: {json_object})')
-        # pprint.pprint(f'Json: {json_object.keys()})')
         medals = json_object["props"]['pageProps']['initialMedals']
         medals = medals['medalStandings']['medalsTable'][0]['disciplines']
         for med in medals:
@@ -75,20 +68,6 @@ def getData():
             logging.info(f"Discipline: {medD}")
             medalsD.append(medD)
             
-        # for row in selection:
-        #     name = row.find(attrs={'class':"elhe7kv5 emotion-srm-uu3d5n"})
-        #     print(f"Name: {name.text}")
-        #     medals = row.find_all(attrs={'class':'e1oix8v91 emotion-srm-81g9w1'})
-        #     print(f"Medals: {medals[0].text} {medals[1].text} {medals[2].text}")
-
-        # urlMedal='https://olympics.com/en/paris-2024/medals/medallists'
-        # req = urllib.request.Request(urlMedal, data=None,
-        #                              headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
-        # result = urllib.request.urlopen(req)
-        # res = result.read()
-        # logging.debug(f"Result: {res}")
-        # soup = BeautifulSoup(res, "lxml")
-        # logging.info(f"Soup: {soup}")
     except:
         print(f"No medals yet")
 
@@ -103,19 +82,22 @@ def printResults(msg, mode):
             # "facebook": "Fernand0Test",
         }
     else:
-        dsts = {"twitter":"medalleroESP"}
-
+        dsts = {"twitter":"medalleroESP",
+                "telegram": "testFernand0",
+                }
 
     for dst in dsts:
-        print(dst)
+        logging.info(f"Destination: {dst}")
         api = getApi(dst, dsts[dst])
-        print(api, dsts[dst])
+        logging.info(f"Account: {api, dsts[dst]}")
         res = api.publishPost(msg, "", "")
-        print(res)
+        logging.info(f"Res: {res}")
 
 def main():
     logging.basicConfig(
-        stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(message)s"
+        stream=sys.stdout, 
+        level=logging.INFO, 
+        format="%(asctime)s %(message)s"
     )
     newData = False
 
@@ -156,3 +138,21 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Code that works, but unused
+#
+# for row in selection:
+#     name = row.find(attrs={'class':"elhe7kv5 emotion-srm-uu3d5n"})
+#     print(f"Name: {name.text}")
+#     medals = row.find_all(attrs={'class':'e1oix8v91 emotion-srm-81g9w1'})
+#     print(f"Medals: {medals[0].text} {medals[1].text} {medals[2].text}")
+
+# urlMedal='https://olympics.com/en/paris-2024/medals/medallists'
+# req = urllib.request.Request(urlMedal, data=None,
+#                              headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
+# result = urllib.request.urlopen(req)
+# res = result.read()
+# logging.debug(f"Result: {res}")
+# soup = BeautifulSoup(res, "lxml")
+# logging.info(f"Soup: {soup}")
+
