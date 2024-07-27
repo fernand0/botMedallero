@@ -33,7 +33,7 @@ url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-m
 url = 'https://olympics.com/en/paris-2024/medals'
 url = 'https://olympics.com/en/paris-2024/medals/china'
 
-urlCountry = 'https://olympics.com/en/paris-2024/profile/china'
+urlCountry = 'https://olympics.com/en/paris-2024/profile/spain'
 
 def nameFile():
     return os.path.expanduser('~/.mySocial/data/spain.json')
