@@ -20,7 +20,7 @@ from socialModules.configMod import *
 
 
 
-# files = ['/tmp/noc-medalist-by-sport-spain.htm', 
+# files = ['/tmp/noc-medalist-by-sport-spain.htm',
 #         '/tmp/noc-medalist-by-sport-italy.htm',
 #         '/tmp/noc-medalist-by-sport-germany.htm',
 #         '/tmp/noc-medalist-by-sport-france.htm',
@@ -31,17 +31,19 @@ medals = ['🥇', '🥈', '🥉']
 url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm'
 url = 'https://olympics.com/en/paris-2024/medals'
 
-def nameFile(): 
+urlCountry = 'https://olympics.com/en/paris-2024/profile/china'
+
+def nameFile():
     return os.path.expanduser('~/.mySocial/data/spain.json')
 
-def getData(): 
-    try: 
-        with open(nameFile(), 'rb') as f: 
+def getData():
+    try:
+        with open(nameFile(), 'rb') as f:
             data = pickle.load(f)
     except:
         data = []
 
-    req = urllib.request.Request(url, data=None, 
+    req = urllib.request.Request(url, data=None,
                                  headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
     result = urllib.request.urlopen(req)
     res = result.read()
@@ -59,6 +61,15 @@ def getData():
         print(f"Name: {name.text}")
         medals = row.find_all(attrs={'class':'e1oix8v91 emotion-srm-81g9w1'})
         print(f"Medals: {medals[0].text} {medals[1].text} {medals[2].text}")
+
+    urlMedal='https://olympics.com/en/paris-2024/medals/medallists'
+    req = urllib.request.Request(urlMedal, data=None,
+                                 headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
+    result = urllib.request.urlopen(req)
+    res = result.read()
+    logging.debug(f"Result: {res}")
+    soup = BeautifulSoup(res, "lxml")
+    logging.info(f"Soup: {soup}")
 
     return selection, data
 
@@ -80,21 +91,21 @@ def printResults(msg, mode):
         res = api.publishPost(msg, "", "")
         print(res)
 
-def main(): 
-    logging.basicConfig( 
+def main():
+    logging.basicConfig(
         stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(message)s"
     )
     newData = False
 
-    mode = None 
-    if len(sys.argv) > 1: 
-        if sys.argv[1] == '-t': 
+    mode = None
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '-t':
             mode = 'test'
 
     text, data = getData()
 
     count = [0, 0, 0]
-    
+
     for i in range(int(len(text)/4)):
         j = i*4
         field1=text[j+0].contents[1]
@@ -112,7 +123,7 @@ def main():
         if (medal not in data):
             printResults(f"Nueva medalla: {medal[3]} {medal[0]} - "
                          f"{medal[1]} ({medal[2]})", mode)
-            data.append(medal) 
+            data.append(medal)
             newData = True
         else:
             print("No news")
@@ -121,9 +132,9 @@ def main():
               f" {medals[0]}: {count[0]}"
               f" {medals[1]}: {count[1]}"
               f" {medals[2]}: {count[2]}", mode)
-        with open(nameFile(), 'wb') as f: 
+        with open(nameFile(), 'wb') as f:
             pickle.dump(data, f)
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     main()
