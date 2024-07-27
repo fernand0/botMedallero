@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 import logging
 import os
 import pickle
@@ -30,6 +31,7 @@ medals = ['🥇', '🥈', '🥉']
 
 url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm'
 url = 'https://olympics.com/en/paris-2024/medals'
+url = 'https://olympics.com/en/paris-2024/medals/china'
 
 urlCountry = 'https://olympics.com/en/paris-2024/profile/china'
 
@@ -51,6 +53,23 @@ def getData():
     soup = BeautifulSoup(res, "lxml")
     logging.info(f"Soup: {soup}")
 
+    jsonD = soup.find_all(attrs={'type':'application/json'})
+    print(f'Json: {jsonD[0].contents[0]}')
+    json_object = json.loads(jsonD[0].contents[0])
+    import pprint
+    pprint.pprint(f'Json: {json_object})')
+    pprint.pprint(f'Json: {json_object.keys()})')
+    medals = json_object["props"]['pageProps']['initialMedals']
+    medals = medals['medalStandings']['medalsTable'][0]['disciplines']
+    for med in medals:
+        aMed = med['medalWinners'][0]
+        print(f"Med: {aMed}")
+        print(f"Discipline: {aMed['eventDescription']}")
+        print(f"Discipline: {aMed['eventCategory']}")
+        print(f"Discipline: {aMed['medalType']}")
+        print(f"Discipline: {aMed['competitorDisplayName']}")
+
+    sys.exit
     #p2024-main-content > div.emotion-srm-uzcajx > div.emotion-srm-b12ho6 > div:nth-child(2) > div > div:nth-child(2) > div > div > div > div
     selection = soup.find_all(attrs={'data-testid': "noc-row"})
     print(f"Sel: {selection}")
