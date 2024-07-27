@@ -25,10 +25,10 @@ medalsIcons = {'ME_GOLD':'🥇', 'ME_SILVER':'🥈', 'ME_BRONZE':'🥉'}
 
 # Paris 2024
 
-url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm'
-url = 'https://olympics.com/en/paris-2024/medals'
+# url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm'
+# url = 'https://olympics.com/en/paris-2024/medals'
 urlCountry = 'https://olympics.com/en/paris-2024/profile/spain'
-url = 'https://olympics.com/en/paris-2024/medals/china'
+# url = 'https://olympics.com/en/paris-2024/medals/china'
 url = 'https://olympics.com/en/paris-2024/medals/spain'
 
 
@@ -44,11 +44,12 @@ def getData():
 
     medalsD = []
     try:
+        print(f"Url: {url}")
         req = urllib.request.Request(url, data=None,
-                                     headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' },
-                                      timeout=10)
+                                     headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
         result = urllib.request.urlopen(req)
         res = result.read()
+        print(res)
         logging.debug(f"Result: {res}")
         soup = BeautifulSoup(res, "lxml")
         logging.debug(f"Soup: {soup}")
@@ -56,17 +57,23 @@ def getData():
         jsonD = soup.find_all(attrs={'type':'application/json'})
         json_object = json.loads(jsonD[0].contents[0])
         medals = json_object["props"]['pageProps']['initialMedals']
-        medals = medals['medalStandings']['medalsTable'][0]['disciplines']
+        medals = medals['medalStandings']['medalsTable']#[0]['disciplines']
         for med in medals:
-            aMed = med['medalWinners'][0]
-            logging.debug(f"Med: {aMed}")
-            medD=(aMed['eventDescription'],
-                  aMed['eventCategory'], 
-                  aMed['medalType'], 
-                  aMed['competitorDisplayName'])
+            if med['organisation'] == 'ESP':
+                medd = med['disciplines'][0]
+                competition = med['disciplines'][0]['name']
+                logging.info(f"Comp: {competition}")
+                for aMed in medd['medalWinners']:
+                    aMed = medd['medalWinners'][0]
+                    logging.info(f"Med: {aMed}")
+                    medD=(competition,
+                          aMed['eventDescription'], 
+                          aMed['medalType'], 
+                          aMed['competitorDisplayName'])
 
-            logging.info(f"Discipline: {medD}")
-            medalsD.append(medD)
+                    logging.info(f"Discipline: {medD}")
+                    medalsD.append(medD)
+                    break
             
     except:
         print(f"No medals yet")
