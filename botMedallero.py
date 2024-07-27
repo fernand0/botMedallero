@@ -31,9 +31,9 @@ medalsIcons = {'ME_GOLD':'🥇', 'ME_SILVER':'🥈', 'ME_BRONZE':'🥉'}
 
 url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm'
 url = 'https://olympics.com/en/paris-2024/medals'
-url = 'https://olympics.com/en/paris-2024/medals/china'
-
 urlCountry = 'https://olympics.com/en/paris-2024/profile/spain'
+url = 'https://olympics.com/en/paris-2024/medals/spain'
+
 
 def nameFile():
     return os.path.expanduser('~/.mySocial/data/spain.json')
@@ -45,48 +45,52 @@ def getData():
     except:
         data = []
 
-    req = urllib.request.Request(url, data=None,
-                                 headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
-    result = urllib.request.urlopen(req)
-    res = result.read()
-    logging.debug(f"Result: {res}")
-    soup = BeautifulSoup(res, "lxml")
-    logging.info(f"Soup: {soup}")
-
-    jsonD = soup.find_all(attrs={'type':'application/json'})
-    # print(f'Json: {jsonD[0].contents[0]}')
-    json_object = json.loads(jsonD[0].contents[0])
-    # import pprint
-    # pprint.pprint(f'Json: {json_object})')
-    # pprint.pprint(f'Json: {json_object.keys()})')
-    medals = json_object["props"]['pageProps']['initialMedals']
-    medals = medals['medalStandings']['medalsTable'][0]['disciplines']
     medalsD = []
-    for med in medals:
-        aMed = med['medalWinners'][0]
-        logging.debug(f"Med: {aMed}")
-        medD=(aMed['eventDescription'],
-              aMed['eventCategory'], 
-              aMed['medalType'], 
-              aMed['competitorDisplayName'])
+    try:
+        req = urllib.request.Request(url, data=None,
+                                     headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' },
+                                      timeout=10)
+        result = urllib.request.urlopen(req)
+        res = result.read()
+        logging.debug(f"Result: {res}")
+        soup = BeautifulSoup(res, "lxml")
+        logging.debug(f"Soup: {soup}")
 
-        logging.info(f"Discipline: {medD}")
-        medalsD.append(medD)
-        
-    # for row in selection:
-    #     name = row.find(attrs={'class':"elhe7kv5 emotion-srm-uu3d5n"})
-    #     print(f"Name: {name.text}")
-    #     medals = row.find_all(attrs={'class':'e1oix8v91 emotion-srm-81g9w1'})
-    #     print(f"Medals: {medals[0].text} {medals[1].text} {medals[2].text}")
+        jsonD = soup.find_all(attrs={'type':'application/json'})
+        # print(f'Json: {jsonD[0].contents[0]}')
+        json_object = json.loads(jsonD[0].contents[0])
+        # import pprint
+        # pprint.pprint(f'Json: {json_object})')
+        # pprint.pprint(f'Json: {json_object.keys()})')
+        medals = json_object["props"]['pageProps']['initialMedals']
+        medals = medals['medalStandings']['medalsTable'][0]['disciplines']
+        for med in medals:
+            aMed = med['medalWinners'][0]
+            logging.debug(f"Med: {aMed}")
+            medD=(aMed['eventDescription'],
+                  aMed['eventCategory'], 
+                  aMed['medalType'], 
+                  aMed['competitorDisplayName'])
 
-    # urlMedal='https://olympics.com/en/paris-2024/medals/medallists'
-    # req = urllib.request.Request(urlMedal, data=None,
-    #                              headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
-    # result = urllib.request.urlopen(req)
-    # res = result.read()
-    # logging.debug(f"Result: {res}")
-    # soup = BeautifulSoup(res, "lxml")
-    # logging.info(f"Soup: {soup}")
+            logging.info(f"Discipline: {medD}")
+            medalsD.append(medD)
+            
+        # for row in selection:
+        #     name = row.find(attrs={'class':"elhe7kv5 emotion-srm-uu3d5n"})
+        #     print(f"Name: {name.text}")
+        #     medals = row.find_all(attrs={'class':'e1oix8v91 emotion-srm-81g9w1'})
+        #     print(f"Medals: {medals[0].text} {medals[1].text} {medals[2].text}")
+
+        # urlMedal='https://olympics.com/en/paris-2024/medals/medallists'
+        # req = urllib.request.Request(urlMedal, data=None,
+        #                              headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
+        # result = urllib.request.urlopen(req)
+        # res = result.read()
+        # logging.debug(f"Result: {res}")
+        # soup = BeautifulSoup(res, "lxml")
+        # logging.info(f"Soup: {soup}")
+    except:
+        print(f"No medals yet")
 
     logging.info(f"Medals: {medalsD}")
     return medalsD, data
@@ -140,6 +144,7 @@ def main():
             newData = True
         else:
             print("No news")
+
     if newData:
         printResults(f"Total medallas:"
               f" {medalsIcons['ME_GOLD']}: {count[0]}"
