@@ -27,7 +27,7 @@ from socialModules.configMod import *
 #         '/tmp/noc-medalist-by-sport-france.htm',
 #         ]
 
-medals = ['🥇', '🥈', '🥉']
+medalsIcons = {'ME_GOLD':'🥇', 'ME_SILVER':'🥈', 'ME_BRONZE':'🥉'}
 
 url = 'https://olympics.com/tokyo-2020/olympic-games/en/results/all-sports/noc-medalist-by-sport-spain.htm'
 url = 'https://olympics.com/en/paris-2024/medals'
@@ -54,50 +54,49 @@ def getData():
     logging.info(f"Soup: {soup}")
 
     jsonD = soup.find_all(attrs={'type':'application/json'})
-    print(f'Json: {jsonD[0].contents[0]}')
+    # print(f'Json: {jsonD[0].contents[0]}')
     json_object = json.loads(jsonD[0].contents[0])
-    import pprint
-    pprint.pprint(f'Json: {json_object})')
-    pprint.pprint(f'Json: {json_object.keys()})')
+    # import pprint
+    # pprint.pprint(f'Json: {json_object})')
+    # pprint.pprint(f'Json: {json_object.keys()})')
     medals = json_object["props"]['pageProps']['initialMedals']
     medals = medals['medalStandings']['medalsTable'][0]['disciplines']
+    medalsD = []
     for med in medals:
         aMed = med['medalWinners'][0]
-        print(f"Med: {aMed}")
-        print(f"Discipline: {aMed['eventDescription']}")
-        print(f"Discipline: {aMed['eventCategory']}")
-        print(f"Discipline: {aMed['medalType']}")
-        print(f"Discipline: {aMed['competitorDisplayName']}")
+        logging.debug(f"Med: {aMed}")
+        medD=(aMed['eventDescription'],
+              aMed['eventCategory'], 
+              aMed['medalType'], 
+              aMed['competitorDisplayName'])
 
-    sys.exit
-    #p2024-main-content > div.emotion-srm-uzcajx > div.emotion-srm-b12ho6 > div:nth-child(2) > div > div:nth-child(2) > div > div > div > div
-    selection = soup.find_all(attrs={'data-testid': "noc-row"})
-    print(f"Sel: {selection}")
-    print(f"Len Sel: {len(selection)}")
+        logging.info(f"Discipline: {medD}")
+        medalsD.append(medD)
+        
+    # for row in selection:
+    #     name = row.find(attrs={'class':"elhe7kv5 emotion-srm-uu3d5n"})
+    #     print(f"Name: {name.text}")
+    #     medals = row.find_all(attrs={'class':'e1oix8v91 emotion-srm-81g9w1'})
+    #     print(f"Medals: {medals[0].text} {medals[1].text} {medals[2].text}")
 
-    for row in selection:
-        name = row.find(attrs={'class':"elhe7kv5 emotion-srm-uu3d5n"})
-        print(f"Name: {name.text}")
-        medals = row.find_all(attrs={'class':'e1oix8v91 emotion-srm-81g9w1'})
-        print(f"Medals: {medals[0].text} {medals[1].text} {medals[2].text}")
+    # urlMedal='https://olympics.com/en/paris-2024/medals/medallists'
+    # req = urllib.request.Request(urlMedal, data=None,
+    #                              headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
+    # result = urllib.request.urlopen(req)
+    # res = result.read()
+    # logging.debug(f"Result: {res}")
+    # soup = BeautifulSoup(res, "lxml")
+    # logging.info(f"Soup: {soup}")
 
-    urlMedal='https://olympics.com/en/paris-2024/medals/medallists'
-    req = urllib.request.Request(urlMedal, data=None,
-                                 headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36' })
-    result = urllib.request.urlopen(req)
-    res = result.read()
-    logging.debug(f"Result: {res}")
-    soup = BeautifulSoup(res, "lxml")
-    logging.info(f"Soup: {soup}")
-
-    return selection, data
+    logging.info(f"Medals: {medalsD}")
+    return medalsD, data
 
 def printResults(msg, mode):
     if mode == 'test':
         dsts = {
             "twitter": "fernand0Test",
             "telegram": "testFernand0",
-            "facebook": "Fernand0Test",
+            # "facebook": "Fernand0Test",
         }
     else:
         dsts = {"twitter":"medalleroESP"}
@@ -125,32 +124,27 @@ def main():
 
     count = [0, 0, 0]
 
-    for i in range(int(len(text)/4)):
-        j = i*4
-        field1=text[j+0].contents[1]
-        if field1.find_all('span'):
-            field1 = field1.find_all('span')[1].text
-        else:
-            field1 = field1.text
-        field2=text[j+1].contents[1]['title'].split(' - ')[1]
-        field3=text[j+2].text[1:]
-        field4=text[j+3].contents[1]['alt']
-        pos = int(field4) - 1
-        field4 = medals[pos]
-        count[pos] = count[pos] + 1
-        medal = (field1, field2, field3, field4)
+    for i, medal in enumerate(text):
+        if medal[2] == 'ME_GOLD':
+            count[0] = count[0] + 1
+        elif medal[2] == 'ME_SILVER':
+            count[1] = count[1] + 1
+        elif medal[2] == 'ME_BRONZE':
+            count[2] = count[2] + 1
+
+        print(f"Disc: {medal}")
         if (medal not in data):
-            printResults(f"Nueva medalla: {medal[3]} {medal[0]} - "
-                         f"{medal[1]} ({medal[2]})", mode)
+            printResults(f"Nueva medalla: {medalsIcons[medal[2]]} "
+                         f"{medal[3]} - {medal[0]} ({medal[1]})", mode)
             data.append(medal)
             newData = True
         else:
             print("No news")
     if newData:
         printResults(f"Total medallas:"
-              f" {medals[0]}: {count[0]}"
-              f" {medals[1]}: {count[1]}"
-              f" {medals[2]}: {count[2]}", mode)
+              f" {medalsIcons['ME_GOLD']}: {count[0]}"
+              f" {medalsIcons['ME_SILVER']}: {count[1]}"
+              f" {medalsIcons['ME_BRONZE']}: {count[2]}", mode)
         with open(nameFile(), 'wb') as f:
             pickle.dump(data, f)
 
