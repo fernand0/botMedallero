@@ -104,7 +104,7 @@ def printResults(msg, mode):
 def main():
     logging.basicConfig(
         stream=sys.stdout, 
-        level=logging.INFO, 
+        level=logging.DEBUG, 
         format="%(asctime)s %(message)s"
     )
     newData = False
@@ -127,24 +127,26 @@ def main():
 
     count = [0, 0, 0]
 
-    for i, medalOld in enumerate(text):
+    for i, medalOld in enumerate(data):
         if medalOld[2] == 'ME_GOLD':
             count[0] = count[0] + 1
         elif medalOld[2] == 'ME_SILVER':
-            countOld[1] = count[1] + 1
+            count[1] = count[1] + 1
         elif medalOld[2] == 'ME_BRONZE':
             count[2] = count[2] + 1
 
-    for i, medal in enumerate(text):
-        if medal[2] == 'ME_GOLD':
-            count[0] = count[0] + 1
-        elif medal[2] == 'ME_SILVER':
-            count[1] = count[1] + 1
-        elif medal[2] == 'ME_BRONZE':
-            count[2] = count[2] + 1
+    logging.debug(f"Count: {count}")
 
+    for i, medal in enumerate(text):
         logging.debug(f"Disc: {medal}")
         if (medal not in data):
+            if medal[2] == 'ME_GOLD':
+                count[0] = count[0] + 1
+            elif medal[2] == 'ME_SILVER':
+                count[1] = count[1] + 1
+            elif medal[2] == 'ME_BRONZE':
+                count[2] = count[2] + 1
+
             printResults(f"Nueva medalla: {medalsIcons[medal[2]]} "
                          f"{medal[3]} - {medal[0]} ({medal[1]})", mode)
             data.append(medal)
