@@ -59,21 +59,23 @@ def getData():
         medals = json_object["props"]['pageProps']['initialMedals']
         medals = medals['medalStandings']['medalsTable']#[0]['disciplines']
         for med in medals:
+            # print(f"Medallaa: {med}")
             if med['organisation'] == 'ESP':
-                medd = med['disciplines'][0]
-                competition = med['disciplines'][0]['name']
-                logging.debug(f"Comp: {competition}")
-                for aMed in medd['medalWinners']:
-                    aMed = medd['medalWinners'][0]
-                    logging.debug(f"Med: {aMed}")
-                    medD=(competition,
-                          aMed['eventDescription'], 
-                          aMed['medalType'], 
-                          aMed['competitorDisplayName'])
+                # print(f"Medalla: {med['disciplines'][0]}")
+                for disc in med['disciplines']:
+                    medd = disc
+                    competition = disc['name']
+                    logging.debug(f"Comp: {competition}")
+                    for aMed in medd['medalWinners']:
+                        aMed = medd['medalWinners'][0]
+                        logging.debug(f"Med: {aMed}")
+                        medD=(competition,
+                              aMed['eventDescription'], 
+                              aMed['medalType'], 
+                              aMed['competitorDisplayName'])
 
-                    logging.debug(f"Discipline: {medD}")
-                    medalsD.append(medD)
-                    break
+                        logging.debug(f"Discipline: {medD}")
+                        medalsD.append(medD)
             
     except:
         print(f"No medals yet")
@@ -104,7 +106,7 @@ def printResults(msg, mode):
 def main():
     logging.basicConfig(
         stream=sys.stdout, 
-        level=logging.DEBUG, 
+        level=logging.DEBUG,
         format="%(asctime)s %(message)s"
     )
     newData = False
