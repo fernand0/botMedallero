@@ -112,11 +112,28 @@ def main():
     mode = None
     if len(sys.argv) > 1:
         if sys.argv[1] == '-t':
-            mode = 'test'
+            mode = 'test' 
+            logging.basicConfig( 
+                                stream=sys.stdout, 
+                                level=logging.DEBUG, 
+                                format="%(asctime)s %(message)s"
+                                )
+        if sys.argv[1] == '-n':
+            newData = True
 
     text, data = getData()
+    logging.debug(f"Data: {data}")
+    logging.debug(f"Medal: {text}")
 
     count = [0, 0, 0]
+
+    for i, medalOld in enumerate(text):
+        if medalOld[2] == 'ME_GOLD':
+            count[0] = count[0] + 1
+        elif medalOld[2] == 'ME_SILVER':
+            countOld[1] = count[1] + 1
+        elif medalOld[2] == 'ME_BRONZE':
+            count[2] = count[2] + 1
 
     for i, medal in enumerate(text):
         if medal[2] == 'ME_GOLD':
@@ -143,6 +160,7 @@ def main():
         with open(nameFile(), 'wb') as f:
             pickle.dump(data, f)
 
+    logging.debug(f"Count: {count}")
 
 if __name__ == "__main__":
     main()
