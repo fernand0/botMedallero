@@ -35,7 +35,7 @@ url = 'https://olympics.com/en/paris-2024/medals/spain'
 def nameFile():
     return os.path.expanduser('~/.mySocial/data/spain.json')
 
-def getData():
+def getData(listing=False):
     try:
         with open(nameFile(), 'rb') as f:
             data = pickle.load(f)
@@ -76,6 +76,8 @@ def getData():
 
                         logging.debug(f"Discipline: {medD}")
                         medalsD.append(medD)
+                        if listing:
+                            print(f"Medal: {medD}")
             
     except:
         print(f"No medals yet")
@@ -106,12 +108,13 @@ def printResults(msg, mode):
 def main():
     logging.basicConfig(
         stream=sys.stdout, 
-        level=logging.DEBUG,
+        level=logging.INFO,
         format="%(asctime)s %(message)s"
     )
     newData = False
 
     mode = None
+    listing = False
     if len(sys.argv) > 1:
         if sys.argv[1] == '-t':
             mode = 'test' 
@@ -122,37 +125,45 @@ def main():
                                 )
         if sys.argv[1] == '-n':
             newData = True
+        if sys.argv[1] == '-l':
+            listing = True
 
-    text, data = getData()
+    text, data = getData(listing)
+    if listing:
+        for med in data: 
+            print(f"Med: {med}")
+        return
     logging.debug(f"Data: {data}")
     logging.debug(f"Medal: {text}")
 
     count = [0, 0, 0]
 
     for i, medalOld in enumerate(data):
-        if medalOld[2] == 'ME_GOLD':
-            count[0] = count[0] + 1
-        elif medalOld[2] == 'ME_SILVER':
-            count[1] = count[1] + 1
-        elif medalOld[2] == 'ME_BRONZE':
-            count[2] = count[2] + 1
+        if medalOld[3]:
+            if medalOld[2] == 'ME_GOLD':
+                count[0] = count[0] + 1
+            elif medalOld[2] == 'ME_SILVER':
+                count[1] = count[1] + 1
+            elif medalOld[2] == 'ME_BRONZE':
+                count[2] = count[2] + 1
 
     logging.debug(f"Count: {count}")
 
     for i, medal in enumerate(text):
         logging.debug(f"Disc: {medal}")
         if (medal not in data):
-            if medal[2] == 'ME_GOLD':
-                count[0] = count[0] + 1
-            elif medal[2] == 'ME_SILVER':
-                count[1] = count[1] + 1
-            elif medal[2] == 'ME_BRONZE':
-                count[2] = count[2] + 1
+            if medal[3]:
+                if medal[2] == 'ME_GOLD':
+                    count[0] = count[0] + 1
+                elif medal[2] == 'ME_SILVER':
+                    count[1] = count[1] + 1
+                elif medal[2] == 'ME_BRONZE':
+                    count[2] = count[2] + 1
 
-            printResults(f"Nueva medalla: {medalsIcons[medal[2]]} "
-                         f"{medal[3]} - {medal[0]} ({medal[1]})", mode)
-            data.append(medal)
-            newData = True
+                printResults(f"Nueva medalla: {medalsIcons[medal[2]]} "
+                             f"{medal[3]} - {medal[0]} ({medal[1]})", mode)
+                data.append(medal)
+                newData = True
         else:
             logging.debug("No news")
 
