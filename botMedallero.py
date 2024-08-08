@@ -98,6 +98,7 @@ def printResults(msg, mode):
                 "mastodon":"@medalleroESP@botsin.space",
                 }
 
+    msg = f"{msg} #paris2024"
     for dst in dsts:
         logging.info(f"Destination: {dst}")
         api = getApi(dst, dsts[dst])
