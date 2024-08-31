@@ -29,7 +29,8 @@ medalsIcons = {'ME_GOLD':'🥇', 'ME_SILVER':'🥈', 'ME_BRONZE':'🥉'}
 # url = 'https://olympics.com/en/paris-2024/medals'
 urlCountry = 'https://olympics.com/en/paris-2024/profile/spain'
 # url = 'https://olympics.com/en/paris-2024/medals/china'
-url = 'https://olympics.com/en/paris-2024/medals/spain'
+# url = 'https://olympics.com/en/paris-2024/medals/spain'
+url = 'https://olympics.com/en/paris-2024/paralympic-games/medals'
 
 
 def nameFile():
@@ -67,17 +68,17 @@ def getData(listing=False):
                     competition = disc['name']
                     logging.debug(f"Comp: {competition}")
                     for aMed in medd['medalWinners']:
-                        aMed = medd['medalWinners'][0]
-                        logging.debug(f"Med: {aMed}")
-                        medD=(competition,
-                              aMed['eventDescription'], 
-                              aMed['medalType'], 
-                              aMed['competitorDisplayName'])
+                        #aMed = medd['medalWinners'][0]
+                            logging.debug(f"Med: {aMed}")
+                            medD=(competition,
+                                  aMed['eventDescription'], 
+                                  aMed['medalType'], 
+                                  aMed['competitorDisplayName'])
 
-                        logging.debug(f"Discipline: {medD}")
-                        medalsD.append(medD)
-                        if listing:
-                            print(f"Medal: {medD}")
+                            logging.debug(f"Discipline: {medD}")
+                            medalsD.append(medD)
+                            if listing:
+                                print(f"Medal: {medD}")
             
     except:
         print(f"No medals yet")
@@ -173,8 +174,9 @@ def main():
               f" {medalsIcons['ME_GOLD']}: {count[0]}"
               f" {medalsIcons['ME_SILVER']}: {count[1]}"
               f" {medalsIcons['ME_BRONZE']}: {count[2]}", mode)
-        with open(nameFile(), 'wb') as f:
-            pickle.dump(data, f)
+        if mode != "test":
+            with open(nameFile(), 'wb') as f:
+                pickle.dump(data, f)
 
     logging.debug(f"Count: {count}")
 
